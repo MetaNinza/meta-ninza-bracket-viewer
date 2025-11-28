@@ -1,0 +1,269 @@
+@use "sass:math";
+
+:root {
+  --bg-color: #000511;
+  --card-bg-start: #18293B;
+  --card-bg-end: #1C1C1E;
+  --card-hover: #1a3a52;
+  --text-primary: #ffffff;
+  --text-secondary: #8a8d9f;
+  --accent-color: #008AFF;
+  --line-color: #7C7C7C;
+  --border-color: #ffffff54;
+  --match-width: 260px;
+  --round-gap: 80px;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  margin: 0;
+  font-family: 'Hubot Sans', sans-serif;
+}
+
+.bracket-container {
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  padding-right: 80px; /* Extra padding on right to see full content */
+  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  touch-action: none; /* Disable native touch scrolling, use custom drag */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  position: relative;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  
+  /* Zoom out to 75% with GPU acceleration */
+  transform: scale(0.75) translateZ(0);
+  transform-origin: top left;
+  width: 133.33%; /* Compensate for scale: 100% / 0.75 = 133.33% */
+  height: 133.33%;
+  
+  /* Performance optimizations */
+  will-change: scroll-position;
+  contain: layout style paint;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  
+  /* Desktop drag cursor */
+  cursor: grab;
+  
+  &:active {
+    cursor: grabbing;
+  }
+  
+  /* Ensure content can expand beyond viewport */
+  & > * {
+    min-width: max-content;
+  }
+
+  &__section {
+    margin-bottom: 60px;
+    position: relative;
+    min-width: max-content;
+    width: max-content;
+    flex-shrink: 0;
+  }
+
+  &__rounds {
+    display: flex;
+    gap: var(--round-gap);
+    min-width: max-content;
+    width: max-content;
+    flex-shrink: 0;
+  }
+}
+
+.section-title {
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.round {
+  display: flex;
+  flex-direction: column;
+  min-width: var(--match-width);
+  flex-shrink: 0;
+
+  &__header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 8px;
+    background: rgba(24, 41, 59, 0.5);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border: 0.5px solid var(--border-color);
+    z-index: 10;
+  }
+
+  &__matches {
+    /* For linear layout */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* Binary Layout Overrides */
+.binary-layout {
+    .round__matches {
+        display: block; /* Allow absolute positioning */
+    }
+
+    /* Draw line to the left for all matches except in the first round */
+    .round:not(:first-child) .match-wrapper-absolute::before {
+        content: '';
+        position: absolute;
+        left: -40px; /* -Half Gap */
+        top: 50%;
+        width: 40px;
+        height: 1px;
+        background: var(--line-color);
+        z-index: 1;
+    }
+}
+
+.match-wrapper-absolute {
+    /* Container for absolute positioning */
+    width: var(--match-width);
+    height: 82px;
+}
+
+.match-card-wrapper {
+  position: relative;
+  height: 82px; /* Fixed height for calculation matching */
+}
+
+.match-card {
+  width: var(--match-width);
+  height: 82px;
+  background: linear-gradient(90deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  border: 0.5px solid var(--border-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 2;
+  position: relative;
+  
+  /* Performance optimizations */
+  contain: layout style paint;
+  will-change: transform;
+  transform: translateZ(0); /* GPU acceleration */
+
+  &__number {
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-color);
+    font-size: 0.75rem;
+    color: white;
+    border-right: 0.5px solid var(--border-color);
+    font-weight: 600;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 50%; /* Split height evenly */
+  border-bottom: 0.5px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--winner {
+    background: linear-gradient(90deg, #0088ff44 0%,  transparent 100%);
+    .team__score { background-color: var(--accent-color); color: white; }
+    .team__name { color: white; font-weight: 600; }
+  }
+
+  &--loser {
+    .team__score { background-color: rgba(255,255,255,0.05); color: var(--text-secondary); }
+    .team__name { color: var(--text-secondary); opacity: 0.7; }
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  &__logo {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__score {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+}
+
+/* Connector Lines (CSS Absolute) */
+.line-horizontal {
+    position: absolute;
+    right: -40px; /* Half gap */
+    top: 50%;
+    width: 40px;
+    height: 1px;
+    background: var(--line-color);
+    z-index: 1;
+}
+
+.line-vertical {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    width: 1px;
+    background: var(--line-color);
+    z-index: 1;
+    /* Height is set inline */
+}
+
+/* Remove default connectors from Match component since we handle them in Bracket */
+.connector {
+    display: none; 
+}
